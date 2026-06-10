@@ -20,6 +20,9 @@ public sealed class OwnerRepository(RegistryDbContext dbContext) : IOwnerReposit
     public Task<Owner?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         => dbContext.Owners.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower(), cancellationToken);
 
+    public Task<Owner?> GetByCpfAsync(string cpf, CancellationToken cancellationToken = default)
+        => dbContext.Owners.FirstOrDefaultAsync(x => x.Cpf == cpf, cancellationToken);
+
     public Task<Owner?> GetOwnerByPetIdAsync(Guid petId, CancellationToken cancellationToken = default)
         => dbContext.Owners
             .Join(
@@ -31,4 +34,7 @@ public sealed class OwnerRepository(RegistryDbContext dbContext) : IOwnerReposit
             .OrderByDescending(x => x.ownership.IsPrimaryOwner)
             .Select(x => x.owner)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<Owner?> FindDuplicateAsync(string cpf, string email, CancellationToken cancellationToken = default)
+        => dbContext.Owners.FirstOrDefaultAsync(owner => owner.Cpf == cpf || owner.Email == email);
 }
